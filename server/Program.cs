@@ -41,7 +41,7 @@ class Server
     }
     static void KeepListening(TcpClient client, string name)
     {
-        string clientIp = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+        string clientIp = ((IPEndPoint)client.Client.RemoteEndPoint!).Address.ToString();
         string info = $"IP: {clientIp}, name: {name}";
         Console.WriteLine($"Client connected with {info}");
 
