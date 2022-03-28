@@ -8,17 +8,20 @@ class Server
     {
         Int32 port = 12345;
         IPAddress localAddr = IPAddress.Parse("127.0.0.1");
-
         TcpListener server = new TcpListener(localAddr, port);
         server.Start();
         Console.WriteLine("Server Start!");
+
+        int counter = 0;
 
         try
         {
             while (true)
             {
+                counter++;
                 TcpClient client = server.AcceptTcpClient();
-                StartClientThread(client);
+                StartClientThread(client, Convert.ToString(counter));
+                
             }
         }
         catch (Exception ex)
@@ -31,15 +34,15 @@ class Server
         }
     }
 
-    static void StartClientThread(TcpClient client)
+    static void StartClientThread(TcpClient client, string name)
     {
-        Thread t = new Thread( () => { KeepListening(client); });
+        Thread t = new Thread( () => { KeepListening(client, name); });
         t.Start();
     }
-    static void KeepListening(TcpClient client)
+    static void KeepListening(TcpClient client, string name)
     {
         string clientIp = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
-        string info = $"IP: {clientIp}";
+        string info = $"IP: {clientIp}, name: {name}";
         Console.WriteLine($"Client connected with {info}");
 
         try
