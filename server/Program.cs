@@ -79,18 +79,11 @@ class Server
         StringBuilder msg = new StringBuilder();
         data = String.Empty;
 
-        try
+        do
         {
-            do
-            {
-                Int32 bytes = stream.Read(buffer, 0, buffer.Length);
-                msg.Append(Encoding.ASCII.GetString(buffer, 0, bytes));
-            } while (stream.DataAvailable);
-        } catch (Exception ex)
-        {
-            return false;
-        }
-        
+            Int32 bytes = stream.Read(buffer, 0, buffer.Length);
+            msg.Append(Encoding.ASCII.GetString(buffer, 0, bytes));
+        } while (stream.DataAvailable);
 
         data = msg.ToString();
         return data != String.Empty;
