@@ -48,25 +48,19 @@ class Server
         try
         {
             NetworkStream stream = client.GetStream();
-            byte[] bufferRead = new byte[2048];
-            byte[] bufferSend = new byte[2048];
-            int bytesRead;
+            string receivedData = String.Empty;
 
-            while ((bytesRead = stream.Read(bufferRead, 0, bufferRead.Length)) > 0)
+            while (ReceiveData(stream, out receivedData))
             {
-                string msg = Encoding.ASCII.GetString(bufferRead, 0, bytesRead);
-                Console.WriteLine($"Receive {msg} from client: {info}");
+                Console.WriteLine($"Receive {receivedData} from client: {info}");
 
-                msg = msg.ToUpper();
+                string msg = doSomething(receivedData);
 
-                bufferSend = Encoding.ASCII.GetBytes(msg);
-
-                stream.Write(bufferSend, 0, bufferSend.Length);
+                SendData(stream, msg);
                 Console.WriteLine($"Send {msg} to client: {info}");
-            }
 
-            Console.WriteLine("hi");
-            // stream.Close();
+                Console.WriteLine("if this message spam too much, it means the code has a bug somewhere.");
+            }
         }
         catch (Exception ex)
         {
@@ -77,5 +71,39 @@ class Server
             client.Close();
             Console.WriteLine($"Client disconnected with {info}");
         }
+    }
+
+    static bool ReceiveData(NetworkStream stream, out string data)
+    {
+        byte[] buffer = new byte[8];
+        StringBuilder msg = new StringBuilder();
+        data = String.Empty;
+
+        try
+        {
+            do
+            {
+                Int32 bytes = stream.Read(buffer, 0, buffer.Length);
+                msg.Append(Encoding.ASCII.GetString(buffer, 0, bytes));
+            } while (stream.DataAvailable);
+        } catch (Exception ex)
+        {
+            return false;
+        }
+        
+
+        data = msg.ToString();
+        return data != String.Empty;
+    }
+
+    static string doSomething(string data)
+    {
+        return data.ToUpper();
+    }
+
+    static void SendData(NetworkStream stream, string msg)
+    {
+        byte[] buffer = Encoding.ASCII.GetBytes(msg);
+        stream.Write(buffer, 0, buffer.Length);
     }
 }
